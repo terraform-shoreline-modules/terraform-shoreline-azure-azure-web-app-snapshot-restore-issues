@@ -1,0 +1,110 @@
+{
+  "name": "azure_web_app_snapshot_restore_issues",
+  "description": "This incident type refers to issues related to restoring a snapshot of an Azure Web App. The incident may occur due to various reasons such as unavailability or inaccessibility of the backup, incorrect resource group or web app name, invalid restore point, incorrect snapshot configuration, and inadequate access permissions. These issues can prevent successful restoration of the snapshot, causing downtime or data loss for the Azure Web App.",
+  "params": [
+    {
+      "name": "USER_OR_GROUP_PRINCIPAL_ID",
+      "value": ""
+    },
+    {
+      "name": "WEB_APP_NAME",
+      "value": ""
+    },
+    {
+      "name": "RESOURCE_GROUP_NAME",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Azure Web App Snapshot Restore Issues\nThis incident type refers to issues related to restoring a snapshot of an Azure Web App. The incident may occur due to various reasons such as unavailability or inaccessibility of the backup, incorrect resource group or web app name, invalid restore point, incorrect snapshot configuration, and inadequate access permissions. These issues can prevent successful restoration of the snapshot, causing downtime or data loss for the Azure Web App."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check resource group and web app name"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `az webapp list --resource-group ${RESOURCE_GROUP_NAME} --output table`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the web app"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `az webapp show --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP_NAME}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify the application settings for a specific web app"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `az webapp config appsettings list --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP_NAME}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check snapshot configuration and settings"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `az webapp config snapshot list --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --output table`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Review access permissions"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `az role assignment list --assignee ${USER_OR_GROUP_PRINCIPAL_ID} --all`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Restore the app from the recent verified snapshot"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_restore_webapp_snapshot($WEB_APP_NAME, $RESOURCE_GROUP_NAME)"
+    }
+  ]
+}
